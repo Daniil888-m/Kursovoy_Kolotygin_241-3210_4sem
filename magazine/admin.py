@@ -13,18 +13,20 @@ class AuthorResource(resources.ModelResource):
         model = Author
         fields = ('name', 'bio')
 
-admin.site.register(Category, admin.ModelAdmin(
-    list_display=['name'],
-    search_fields=['name'],
-    list_display_links=['name']
-))
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
+    list_display_links = ['name']
 
-admin.site.register(Author, ImportExportModelAdmin(
-    resource_class=AuthorResource,
-    list_display=['name', 'bio'],
-    search_fields=['name'],
-    list_filter=['name']
-))
+admin.site.register(Category, CategoryAdmin)
+
+class AuthorAdmin(ImportExportModelAdmin):
+    resource_class = AuthorResource
+    list_display = ['name', 'bio']
+    search_fields = ['name']
+    list_filter = ['name']
+
+admin.site.register(Author, AuthorAdmin)
 
 class CommentInline(admin.TabularInline):
     model = Comment
@@ -41,20 +43,23 @@ class ArticleAdmin(ImportExportModelAdmin):
 
 admin.site.register(Article, ArticleAdmin)
 
-admin.site.register(Issue, admin.ModelAdmin(
-    list_display=['number', 'pub_date'],  # ← pub_date!
-    filter_horizontal=['articles'],
-    list_filter=['pub_date']
-))
+class IssueAdmin(admin.ModelAdmin):
+    list_display = ['number', 'pub_date']  # ← pub_date!
+    filter_horizontal = ['articles']
+    list_filter = ['pub_date']
 
-admin.site.register(Comment, admin.ModelAdmin(
-    list_display=['article', 'author', 'createdat'],
-    list_filter=['createdat', 'article'],
-    readonly_fields=['createdat']
-))
+admin.site.register(Issue, IssueAdmin)
 
-admin.site.register(Tag, admin.ModelAdmin(
-    list_display=['name'],
-    filter_horizontal=['articles'],
-    search_fields=['name']
-))
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['article', 'author', 'created_at']
+    list_filter = ['created_at', 'article']
+    readonly_fields = ['created_at']
+
+admin.site.register(Comment, CommentAdmin)
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    filter_horizontal = ['articles']
+    search_fields = ['name']
+
+admin.site.register(Tag, TagAdmin)
