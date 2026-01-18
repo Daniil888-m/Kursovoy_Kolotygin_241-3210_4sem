@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.utils import timezone
 from datetime import timedelta
-from .models import Article, Author
+from .models import Article, Author, Tag
 from .serializers import ArticleSerializer, AuthorSerializer
 
 class AuthorViewSet(viewsets.ModelViewSet):
@@ -27,3 +27,27 @@ class ArticleViewSet(viewsets.ModelViewSet):
         recent = self.queryset.filter(pub_date__gte=timezone.now() - timedelta(days=30))
         serializer = self.get_serializer(recent, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def toggle_tag(self, request, pk=None):
+        """POST /magazine/api/articles/{id}/toggle_tag/"""
+        article = self.get_object()
+        tag_name = request.data.get('tag', 'featured')
+
+        # 1. Получаем или создаем тег (это работало)
+        tag, created = Tag.objects.get_or_create(name=tag_name)
+
+        # 2. ИСПРАВЛЕНИЕ: Используем article.tags (так называется ваше поле в models.py)
+        if tag in article.tags.all():
+            article.tags.remove(tag)
+            status = 'тег удалён'
+        else:
+            article.tags.add(tag)
+            status = 'тег добавлен'
+
+        return Response({
+            'status': status,
+            'tags_count': article.tags.count(),  # Было article.tag_set (ошибка) -> стало article.tags
+            'has_featured': article.tags.filter(name='featured').exists()
+        })
+

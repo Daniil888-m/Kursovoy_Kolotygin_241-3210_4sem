@@ -39,6 +39,7 @@ class ArticleAdmin(ImportExportModelAdmin):
     search_fields = ['title', 'content']
     date_hierarchy = 'pub_date'  # ← pub_date!
     list_display_links = ['title']
+    filter_horizontal = ['tags']
     inlines = [CommentInline]
 
 admin.site.register(Article, ArticleAdmin)

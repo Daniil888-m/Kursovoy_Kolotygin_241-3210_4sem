@@ -16,6 +16,7 @@ class Article(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
     author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name='Автор')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Рубрика')
+    tags = models.ManyToManyField('Tag', blank=True, verbose_name='Теги')
     def __str__(self): return self.title
 
 class Issue(models.Model):
