@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1380" viewBox="0 0 1800 1380">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#172033" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#61708a"/>
+    </marker>
+    <style>
+      .title { font: 700 42px 'Segoe UI', Arial, sans-serif; fill: #172033; }
+      .subtitle { font: 400 23px 'Segoe UI', Arial, sans-serif; fill: #5c687c; }
+      .box { fill: #ffffff; stroke: #d8deea; stroke-width: 2; rx: 16; filter: url(#shadow); }
+      .head-main { fill: #6941c6; }
+      .head-user { fill: #2563a6; }
+      .head-ref { fill: #287d68; }
+      .head-action { fill: #b3552f; }
+      .head-text { font: 700 25px 'Segoe UI', Arial, sans-serif; fill: #ffffff; }
+      .field { font: 20px 'Consolas', 'Courier New', monospace; fill: #263247; }
+      .field-note { font: 18px 'Segoe UI', Arial, sans-serif; fill: #657087; }
+      .pk { fill: #f4b740; font-weight: 700; }
+      .fk { fill: #1d8a70; font-weight: 700; }
+      .rel { fill: none; stroke: #61708a; stroke-width: 3; marker-end: url(#arrow); }
+      .rel-dashed { fill: none; stroke: #8a6b35; stroke-width: 3; stroke-dasharray: 10 8; marker-end: url(#arrow); }
+      .rel-label-bg { fill: #f7f8fb; stroke: #d8deea; rx: 9; }
+      .rel-label { font: 700 18px 'Segoe UI', Arial, sans-serif; fill: #445066; }
+      .legend-title { font: 700 21px 'Segoe UI', Arial, sans-serif; fill: #263247; }
+      .legend { font: 18px 'Segoe UI', Arial, sans-serif; fill: #566278; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1380" fill="#f5f2ed"/>
+  <text x="70" y="72" class="title">База данных сайта-портфолио художника</text>
+  <text x="70" y="111" class="subtitle">Минимальная понятная структура под требования методички на оценку «3»</text>
+
+  <!-- Relationship lines are drawn first so that cards remain readable. -->
+  <path class="rel" d="M390 438 H610"/>
+  <path class="rel" d="M695 294 V318 H760 V340"/>
+  <path class="rel" d="M1025 294 V340"/>
+  <path class="rel" d="M1540 320 V520 H1190"/>
+  <path class="rel-dashed" d="M1175 225 H1360"/>
+  <path class="rel" d="M790 835 V930 H360 V1040"/>
+  <path class="rel" d="M940 835 V1040"/>
+  <path class="rel" d="M1090 835 V900 H1510 V975"/>
+
+  <!-- Relationship labels -->
+  <g><rect x="466" y="407" width="86" height="38" class="rel-label-bg"/><text x="483" y="433" class="rel-label">1 → M</text></g>
+  <g><rect x="705" y="299" width="86" height="38" class="rel-label-bg"/><text x="722" y="325" class="rel-label">1 → M</text></g>
+  <g><rect x="983" y="299" width="86" height="38" class="rel-label-bg"/><text x="1000" y="325" class="rel-label">1 → M</text></g>
+  <g><rect x="1423" y="489" width="86" height="38" class="rel-label-bg"/><text x="1440" y="515" class="rel-label">1 → M</text></g>
+  <g><rect x="1225" y="195" width="86" height="38" class="rel-label-bg"/><text x="1242" y="221" class="rel-label">1 → M</text></g>
+  <g><rect x="521" y="895" width="86" height="38" class="rel-label-bg"/><text x="538" y="921" class="rel-label">1 → M</text></g>
+  <g><rect x="897" y="996" width="86" height="38" class="rel-label-bg"/><text x="914" y="1022" class="rel-label">1 → M</text></g>
+  <g><rect x="1295" y="862" width="104" height="38" class="rel-label-bg"/><text x="1310" y="888" class="rel-label">1 → M*</text></g>
+
+  <!-- User -->
+  <g>
+    <rect x="60" y="330" width="330" height="410" class="box"/>
+    <path d="M76 330 H374 Q390 330 390 346 V392 H60 V346 Q60 330 76 330" class="head-user"/>
+    <text x="84" y="370" class="head-text">User — пользователь</text>
+    <text x="84" y="428" class="field"><tspan class="pk">PK</tspan> id</text>
+    <text x="84" y="468" class="field">username</text>
+    <text x="84" y="508" class="field">email</text>
+    <text x="84" y="548" class="field">password</text>
+    <text x="84" y="588" class="field">first_name</text>
+    <text x="84" y="628" class="field">last_name</text>
+    <text x="84" y="668" class="field">is_staff</text>
+    <text x="84" y="707" class="field-note">Художник: is_staff = True</text>
+  </g>
+
+  <!-- Category -->
+  <g>
+    <rect x="545" y="160" width="300" height="134" class="box"/>
+    <path d="M561 160 H829 Q845 160 845 176 V215 H545 V176 Q545 160 561 160" class="head-ref"/>
+    <text x="569" y="199" class="head-text">Category — категория</text>
+    <text x="569" y="252" class="field"><tspan class="pk">PK</tspan> id   name</text>
+  </g>
+
+  <!-- Style -->
+  <g>
+    <rect x="875" y="160" width="300" height="134" class="box"/>
+    <path d="M891 160 H1159 Q1175 160 1175 176 V215 H875 V176 Q875 160 891 160" class="head-ref"/>
+    <text x="899" y="199" class="head-text">Style — стиль</text>
+    <text x="899" y="252" class="field"><tspan class="pk">PK</tspan> id   name</text>
+  </g>
+
+  <!-- Technique -->
+  <g>
+    <rect x="1360" y="160" width="360" height="160" class="box"/>
+    <path d="M1376 160 H1704 Q1720 160 1720 176 V215 H1360 V176 Q1360 160 1376 160" class="head-ref"/>
+    <text x="1384" y="199" class="head-text">Technique — техника</text>
+    <text x="1384" y="252" class="field"><tspan class="pk">PK</tspan> id   name</text>
+    <text x="1384" y="292" class="field"><tspan class="fk">FK</tspan> style_id</text>
+  </g>
+
+  <!-- Artwork -->
+  <g>
+    <rect x="610" y="340" width="580" height="495" class="box"/>
+    <path d="M626 340 H1174 Q1190 340 1190 356 V402 H610 V356 Q610 340 626 340" class="head-main"/>
+    <text x="634" y="381" class="head-text">Artwork — художественная работа</text>
+    <text x="634" y="438" class="field"><tspan class="pk">PK</tspan> id</text>
+    <text x="634" y="476" class="field"><tspan class="fk">FK</tspan> artist_id → User</text>
+    <text x="634" y="514" class="field"><tspan class="fk">FK</tspan> category_id → Category</text>
+    <text x="634" y="552" class="field"><tspan class="fk">FK</tspan> style_id → Style</text>
+    <text x="634" y="590" class="field"><tspan class="fk">FK</tspan> technique_id → Technique</text>
+    <text x="634" y="628" class="field">title   description</text>
+    <text x="634" y="666" class="field">materials   year_created</text>
+    <text x="634" y="704" class="field">width_cm   height_cm</text>
+    <text x="634" y="742" class="field">price   image</text>
+    <text x="634" y="780" class="field">is_published   created_at</text>
+    <text x="634" y="816" class="field-note">Главная таблица галереи</text>
+  </g>
+
+  <!-- Review -->
+  <g>
+    <rect x="80" y="1040" width="560" height="275" class="box"/>
+    <path d="M96 1040 H624 Q640 1040 640 1056 V1102 H80 V1056 Q80 1040 96 1040" class="head-action"/>
+    <text x="104" y="1081" class="head-text">Review — отзыв и оценка</text>
+    <text x="104" y="1140" class="field"><tspan class="pk">PK</tspan> id</text>
+    <text x="104" y="1178" class="field"><tspan class="fk">FK</tspan> artwork_id   <tspan class="fk">FK</tspan> user_id</text>
+    <text x="104" y="1216" class="field">rating (1–5)   text</text>
+    <text x="104" y="1254" class="field">is_approved   created_at</text>
+    <text x="104" y="1293" class="field-note">Один отзыв пользователя на работу</text>
+  </g>
+
+  <!-- Comment -->
+  <g>
+    <rect x="700" y="1040" width="520" height="238" class="box"/>
+    <path d="M716 1040 H1204 Q1220 1040 1220 1056 V1102 H700 V1056 Q700 1040 716 1040" class="head-action"/>
+    <text x="724" y="1081" class="head-text">Comment — комментарий</text>
+    <text x="724" y="1140" class="field"><tspan class="pk">PK</tspan> id</text>
+    <text x="724" y="1178" class="field"><tspan class="fk">FK</tspan> artwork_id   <tspan class="fk">FK</tspan> user_id</text>
+    <text x="724" y="1216" class="field">text   is_approved   created_at</text>
+    <text x="724" y="1255" class="field-note">Обсуждение конкретной работы</text>
+  </g>
+
+  <!-- Contact request -->
+  <g>
+    <rect x="1280" y="975" width="460" height="340" class="box"/>
+    <path d="M1296 975 H1724 Q1740 975 1740 991 V1037 H1280 V991 Q1280 975 1296 975" class="head-action"/>
+    <text x="1304" y="1016" class="head-text">ContactRequest — обращение</text>
+    <text x="1304" y="1075" class="field"><tspan class="pk">PK</tspan> id</text>
+    <text x="1304" y="1113" class="field"><tspan class="fk">FK</tspan> user_id (необязательно)</text>
+    <text x="1304" y="1151" class="field"><tspan class="fk">FK</tspan> artwork_id (необязательно)</text>
+    <text x="1304" y="1189" class="field">name   email</text>
+    <text x="1304" y="1227" class="field">message   is_processed</text>
+    <text x="1304" y="1265" class="field">created_at</text>
+    <text x="1304" y="1298" class="field-note">Вопрос о покупке или сотрудничестве</text>
+  </g>
+
+  <!-- Legend -->
+  <g>
+    <rect x="1270" y="630" width="450" height="210" class="box"/>
+    <text x="1296" y="690" class="legend-title">Как читать схему</text>
+    <text x="1296" y="728" class="legend"><tspan class="pk">PK</tspan> — первичный ключ, уникальный номер</text>
+    <text x="1296" y="764" class="legend"><tspan class="fk">FK</tspan> — внешний ключ, ссылка на таблицу</text>
+    <text x="1296" y="800" class="legend">1 → M — одна запись связана со многими</text>
+    <text x="1296" y="829" class="field-note">Связь с User также видна по полю FK user_id</text>
+  </g>
+
+  <text x="1280" y="1360" class="field-note">* Связь необязательная: контактная форма доступна и гостю.</text>
+</svg>
