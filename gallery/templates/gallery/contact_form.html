@@ -1,0 +1,50 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Связаться с художником — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="contact-section container">
+    <a class="back-link" href="{% url 'gallery:artwork_list' %}">← Вернуться в галерею</a>
+
+    <div class="contact-layout">
+        <div class="contact-intro">
+            <p class="eyebrow">ЕСТЬ ВОПРОС?</p>
+            <h1>Давайте<br><em>поговорим</em></h1>
+            <p>Напишите художнику о работе, сотрудничестве или своей идее. Сообщение появится в разделе «Обращения» панели администратора.</p>
+            {% if artwork %}
+                <div class="contact-artwork">
+                    <span>Вы спрашиваете о работе</span>
+                    <strong>{{ artwork.title }}</strong>
+                    <a href="{% url 'gallery:artwork_detail' artwork.pk %}">Посмотреть работу ↗</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <form class="contact-form" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.name.id_for_label }}">Ваше имя</label>
+                {{ form.name }}
+                {% for error in form.name.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.email.id_for_label }}">Электронная почта</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.message.id_for_label }}">Сообщение</label>
+                {{ form.message }}
+                {% for error in form.message.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <button type="submit">Отправить сообщение ↗</button>
+            <p class="form-note">Поля обязательны. Обращение сохраняется в базе данных, но письмо на почту не отправляется.</p>
+        </form>
+    </div>
+</section>
+{% endblock %}

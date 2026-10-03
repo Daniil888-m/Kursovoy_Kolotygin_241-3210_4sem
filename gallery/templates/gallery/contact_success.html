@@ -1,0 +1,12 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Сообщение отправлено — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="success-section container">
+    <p class="eyebrow">СООБЩЕНИЕ СОХРАНЕНО</p>
+    <h1>Спасибо за ваше<br><em>сообщение!</em></h1>
+    <p>Обращение появилось в панели администратора. Художник сможет прочитать его там.</p>
+    <a class="contact-button" href="{% url 'gallery:artwork_list' %}">Вернуться к работам ↗</a>
+</section>
+{% endblock %}

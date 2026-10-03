@@ -1,0 +1,76 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Галерея работ — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-inner">
+        <div>
+            <p class="eyebrow">КОЛЛЕКЦИЯ АВТОРСКИХ РАБОТ</p>
+            <h1>Искусство, которое<br><em>остаётся с вами</em></h1>
+            <p class="hero-description">Картины, графика и эксперименты с формой. Изучите работы и найдите ту, которая вам близка.</p>
+            <a class="hero-link" href="#gallery">Смотреть галерею <span aria-hidden="true">↘</span></a>
+        </div>
+        <div class="hero-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+</section>
+
+<section class="gallery-section container" id="gallery">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">ПОРТФОЛИО</p>
+            <h2>Галерея работ</h2>
+        </div>
+        <p>Здесь показаны только опубликованные работы.</p>
+    </div>
+
+    <form class="filters" method="get" action="{% url 'gallery:artwork_list' %}">
+        <label>
+            <span>Поиск по названию</span>
+            <input type="search" name="q" value="{{ query }}" placeholder="Например, городской вечер">
+        </label>
+        <label>
+            <span>Категория</span>
+            <select name="category">
+                <option value="">Все категории</option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}" {% if category.name == selected_category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit">Найти работы</button>
+        {% if query or selected_category %}
+            <a class="reset-link" href="{% url 'gallery:artwork_list' %}">Сбросить</a>
+        {% endif %}
+    </form>
+
+    <div class="artwork-grid">
+        {% for artwork in artworks %}
+            <article class="artwork-card">
+                <a class="artwork-image" href="{% url 'gallery:artwork_detail' artwork.pk %}">
+                    <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}" loading="lazy">
+                    <span class="image-arrow" aria-hidden="true">↗</span>
+                </a>
+                <div class="artwork-info">
+                    <p class="artwork-category">{{ artwork.category.name }} · {{ artwork.year_created }}</p>
+                    <h3><a href="{% url 'gallery:artwork_detail' artwork.pk %}">{{ artwork.title }}</a></h3>
+                    <div class="artwork-meta">
+                        <span>{{ artwork.style.name }}</span>
+                        <span>{% if artwork.price is not None %}{{ artwork.price|floatformat:0 }} ₽{% else %}Цена по запросу{% endif %}</span>
+                    </div>
+                    <div class="artwork-stats">
+                        <span>{% if artwork.average_rating is not None %}★ {{ artwork.average_rating|floatformat:1 }} / 5{% else %}Пока без оценок{% endif %}</span>
+                        <span>Комментариев: {{ artwork.approved_comments_count }}</span>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <h3>Работы не найдены</h3>
+                <p>Попробуйте другое название или выберите все категории.</p>
+                <a href="{% url 'gallery:artwork_list' %}">Показать все работы</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

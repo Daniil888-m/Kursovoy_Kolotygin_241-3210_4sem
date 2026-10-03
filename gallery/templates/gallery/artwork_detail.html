@@ -1,0 +1,59 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}{{ artwork.title }} — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="detail-section container">
+    <a class="back-link" href="{% url 'gallery:artwork_list' %}">← Вернуться в галерею</a>
+
+    <div class="detail-layout">
+        <div class="detail-image">
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}">
+        </div>
+        <div class="detail-content">
+            <p class="eyebrow">{{ artwork.category.name }} · {{ artwork.year_created }}</p>
+            <h1>{{ artwork.title }}</h1>
+            <p class="detail-description">{{ artwork.description|linebreaksbr }}</p>
+
+            <dl class="facts">
+                <div><dt>Художник</dt><dd>{{ artwork.artist.get_full_name|default:artwork.artist.username }}</dd></div>
+                <div><dt>Стиль</dt><dd>{{ artwork.style.name }}</dd></div>
+                <div><dt>Техника</dt><dd>{{ artwork.technique.name }}</dd></div>
+                <div><dt>Материалы</dt><dd>{{ artwork.materials }}</dd></div>
+                <div><dt>Размер</dt><dd>{{ artwork.width_cm }} × {{ artwork.height_cm }} см</dd></div>
+                <div><dt>Цена</dt><dd>{% if artwork.price is not None %}{{ artwork.price|floatformat:0 }} ₽{% else %}По запросу{% endif %}</dd></div>
+                <div><dt>Средняя оценка</dt><dd>{% if artwork.average_rating is not None %}{{ artwork.average_rating|floatformat:1 }} / 5{% else %}Пока нет оценок{% endif %}</dd></div>
+                <div><dt>Комментариев</dt><dd>{{ artwork.approved_comments_count }}</dd></div>
+            </dl>
+            <a class="contact-button" href="{% url 'gallery:artwork_contact' artwork.pk %}">Написать об этой работе ↗</a>
+        </div>
+    </div>
+
+    <div class="feedback-layout">
+        <section class="feedback-block" aria-labelledby="reviews-title">
+            <p class="eyebrow">МНЕНИЯ ЗРИТЕЛЕЙ</p>
+            <h2 id="reviews-title">Отзывы</h2>
+            {% for review in reviews %}
+                <article class="feedback-card">
+                    <div class="feedback-heading"><strong>{{ review.user.username }}</strong><span>Оценка: {{ review.rating }}/5</span></div>
+                    <p>{{ review.text }}</p>
+                </article>
+            {% empty %}
+                <p class="no-feedback">Пока нет одобренных отзывов.</p>
+            {% endfor %}
+        </section>
+        <section class="feedback-block" aria-labelledby="comments-title">
+            <p class="eyebrow">ОБСУЖДЕНИЕ</p>
+            <h2 id="comments-title">Комментарии</h2>
+            {% for comment in comments %}
+                <article class="feedback-card">
+                    <div class="feedback-heading"><strong>{{ comment.user.username }}</strong></div>
+                    <p>{{ comment.text }}</p>
+                </article>
+            {% empty %}
+                <p class="no-feedback">Пока нет одобренных комментариев.</p>
+            {% endfor %}
+        </section>
+    </div>
+</section>
+{% endblock %}

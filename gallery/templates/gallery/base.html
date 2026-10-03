@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Портфолио художника: живопись, графика и авторские работы.">
+    <title>{% block title %}Портфолио художника{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'gallery/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="{% url 'gallery:artwork_list' %}" aria-label="На главную страницу">
+                <span class="brand-mark">А</span>
+                <span>Арт-портфолио</span>
+            </a>
+            <nav aria-label="Основная навигация">
+                <a href="{% url 'gallery:artwork_list' %}">Галерея</a>
+                <a href="{% url 'gallery:contact' %}">Связаться</a>
+                <a href="{% url 'admin:index' %}">Администрирование</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <span>Арт-портфолио · Учебный проект на Django</span>
+            <a href="{% url 'gallery:artwork_list' %}">Все работы ↑</a>
+        </div>
+    </footer>
+</body>
+</html>
