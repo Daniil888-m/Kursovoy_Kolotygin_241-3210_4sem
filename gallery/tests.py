@@ -174,3 +174,55 @@ class PublicGalleryTests(TestCase):
 
         self.assertIsNone(response.context["artwork"].average_rating)
         self.assertEqual(response.context["artwork"].approved_comments_count, 0)
+
+    def test_api_returns_only_published_artworks(self):
+        response = self.client.get(
+            reverse("gallery:artwork_api_list"), HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["title"], "Открытая работа")
+        self.assertEqual(data[0]["category"], "Живопись")
+        self.assertEqual(data[0]["formatted_dimensions"], "30.0 × 40.0 см")
+        self.assertEqual(
+            data[0]["image_url"], "http://testserver/media/artworks/test.jpg"
+        )
+        self.assertIsNone(data[0]["average_rating"])
+        self.assertEqual(data[0]["approved_comments_count"], 0)
+        self.assertNotIn("is_published", data[0])
+
+    def test_api_statistics_ignore_unapproved_feedback(self):
+        visitor = get_user_model().objects.create_user(username="api_visitor")
+        Review.objects.create(
+            artwork=self.published, user=self.artist, rating=5,
+            text="Одобренный отзыв", is_approved=True,
+        )
+        Review.objects.create(
+            artwork=self.published, user=visitor, rating=1,
+            text="Скрытый отзыв", is_approved=False,
+        )
+        Comment.objects.create(
+            artwork=self.published, user=self.artist,
+            text="Одобренный комментарий", is_approved=True,
+        )
+        Comment.objects.create(
+            artwork=self.published, user=visitor,
+            text="Скрытый комментарий", is_approved=False,
+        )
+
+        response = self.client.get(
+            reverse("gallery:artwork_api_list"), HTTP_ACCEPT="application/json"
+        )
+
+        self.assertEqual(response.json()[0]["average_rating"], 5.0)
+        self.assertEqual(response.json()[0]["approved_comments_count"], 1)
+
+    def test_api_rejects_post(self):
+        response = self.client.post(reverse("gallery:artwork_api_list"), {
+            "title": "Новая работа",
+        })
+
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(Artwork.objects.count(), 2)
