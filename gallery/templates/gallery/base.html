@@ -18,7 +18,17 @@
             <nav aria-label="Основная навигация">
                 <a href="{% url 'gallery:artwork_list' %}">Галерея</a>
                 <a href="{% url 'gallery:contact' %}">Связаться</a>
-                <a href="{% url 'admin:index' %}">Администрирование</a>
+                {% if user.is_authenticated %}
+                    <span class="nav-user">{{ user.username }}</span>
+                    <form class="logout-form" method="post" action="{% url 'gallery:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Выйти</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'gallery:login' %}">Войти</a>
+                    <a href="{% url 'gallery:register' %}">Регистрация</a>
+                {% endif %}
+                {% if user.is_staff %}<a href="{% url 'admin:index' %}">Администрирование</a>{% endif %}
             </nav>
         </div>
     </header>

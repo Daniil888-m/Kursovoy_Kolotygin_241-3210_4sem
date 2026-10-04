@@ -1,0 +1,41 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Регистрация — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="auth-section container">
+    <a class="back-link" href="{% url 'gallery:artwork_list' %}">← Вернуться в галерею</a>
+    <div class="auth-layout">
+        <div class="auth-intro">
+            <p class="eyebrow">НОВЫЙ АККАУНТ</p>
+            <h1>Присоединяйтесь<br><em>к галерее</em></h1>
+            <p>Создайте учётную запись. После регистрации вы сразу войдёте на сайт.</p>
+        </div>
+
+        <form class="contact-form auth-form" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.password1.id_for_label }}">Пароль</label>
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.password2.id_for_label }}">Повторите пароль</label>
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <p class="form-note">Придумайте пароль не короче 8 символов, не состоящий только из цифр.</p>
+            <button type="submit">Зарегистрироваться ↗</button>
+            <p class="auth-switch">Уже есть аккаунт? <a href="{% url 'gallery:login' %}">Войти</a></p>
+        </form>
+    </div>
+</section>
+{% endblock %}

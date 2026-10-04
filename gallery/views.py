@@ -1,3 +1,5 @@
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -79,3 +81,20 @@ def contact_request(request, pk=None):
 def contact_success(request):
     """Подтверждает посетителю, что обращение сохранено."""
     return render(request, "gallery/contact_success.html")
+
+
+def register(request):
+    """Регистрирует посетителя и открывает для него сеанс входа."""
+    if request.user.is_authenticated:
+        return redirect("gallery:artwork_list")
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("gallery:artwork_list")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "gallery/register.html", {"form": form})

@@ -282,3 +282,87 @@ class PublicGalleryTests(TestCase):
             )
             self.assertEqual(response.status_code, 400)
             self.assertIn(field_name, response.json()["errors"])
+
+
+class AuthenticationTests(TestCase):
+    def test_registration_page_shows_form(self):
+        response = self.client.get(reverse("gallery:register"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Имя пользователя")
+        self.assertContains(response, "csrfmiddlewaretoken")
+
+    def test_registration_creates_user_and_logs_in(self):
+        password = "StrongUniquePass123!"
+        response = self.client.post(reverse("gallery:register"), {
+            "username": "new_visitor",
+            "password1": password,
+            "password2": password,
+        })
+
+        self.assertRedirects(response, reverse("gallery:artwork_list"))
+        user = get_user_model().objects.get(username="new_visitor")
+        self.assertTrue(user.check_password(password))
+        self.assertNotEqual(user.password, password)
+        self.assertEqual(self.client.session["_auth_user_id"], str(user.pk))
+        self.assertFalse(user.is_staff)
+
+    def test_registration_rejects_different_passwords(self):
+        response = self.client.post(reverse("gallery:register"), {
+            "username": "new_visitor",
+            "password1": "StrongUniquePass123!",
+            "password2": "AnotherStrongPass123!",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("password2", response.context["form"].errors)
+        self.assertFalse(get_user_model().objects.exists())
+
+    def test_registration_rejects_existing_username(self):
+        get_user_model().objects.create_user(username="existing_visitor")
+        response = self.client.post(reverse("gallery:register"), {
+            "username": "existing_visitor",
+            "password1": "StrongUniquePass123!",
+            "password2": "StrongUniquePass123!",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("username", response.context["form"].errors)
+        self.assertEqual(get_user_model().objects.count(), 1)
+
+    def test_valid_login_opens_session(self):
+        user = get_user_model().objects.create_user(
+            username="returning_visitor", password="StrongUniquePass123!"
+        )
+        response = self.client.post(reverse("gallery:login"), {
+            "username": "returning_visitor",
+            "password": "StrongUniquePass123!",
+        })
+
+        self.assertRedirects(response, reverse("gallery:artwork_list"))
+        self.assertEqual(self.client.session["_auth_user_id"], str(user.pk))
+
+    def test_wrong_password_does_not_log_in(self):
+        get_user_model().objects.create_user(
+            username="returning_visitor", password="StrongUniquePass123!"
+        )
+        response = self.client.post(reverse("gallery:login"), {
+            "username": "returning_visitor",
+            "password": "wrong_password",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].non_field_errors())
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logout_requires_post_and_closes_session(self):
+        user = get_user_model().objects.create_user(username="visitor")
+        self.client.force_login(user)
+
+        get_response = self.client.get(reverse("gallery:logout"))
+        self.assertEqual(get_response.status_code, 405)
+        self.assertEqual(self.client.session["_auth_user_id"], str(user.pk))
+
+        post_response = self.client.post(reverse("gallery:logout"))
+        self.assertRedirects(post_response, reverse("gallery:artwork_list"))
+        self.assertNotIn("_auth_user_id", self.client.session)

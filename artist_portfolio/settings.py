@@ -120,3 +120,7 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = 'gallery:login'
+LOGIN_REDIRECT_URL = 'gallery:artwork_list'
+LOGOUT_REDIRECT_URL = 'gallery:artwork_list'

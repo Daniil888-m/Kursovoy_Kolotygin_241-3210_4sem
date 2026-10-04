@@ -1,0 +1,36 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Вход — Арт-портфолио{% endblock %}
+
+{% block content %}
+<section class="auth-section container">
+    <a class="back-link" href="{% url 'gallery:artwork_list' %}">← Вернуться в галерею</a>
+    <div class="auth-layout">
+        <div class="auth-intro">
+            <p class="eyebrow">С ВОЗВРАЩЕНИЕМ</p>
+            <h1>Войти<br><em>в аккаунт</em></h1>
+            <p>Введите имя пользователя и пароль, указанные при регистрации.</p>
+        </div>
+
+        <form class="contact-form auth-form" method="post">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+            <div class="form-field">
+                <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.password.id_for_label }}">Пароль</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <button type="submit">Войти ↗</button>
+            <p class="auth-switch">Нет аккаунта? <a href="{% url 'gallery:register' %}">Зарегистрироваться</a></p>
+        </form>
+    </div>
+</section>
+{% endblock %}
