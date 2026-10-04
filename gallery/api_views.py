@@ -2,6 +2,7 @@ from django.db.models import Avg, Count, Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from .filters import ArtworkFilter
 from .models import Artwork
 from .serializers import ArtworkSerializer
 
@@ -18,7 +19,11 @@ def artwork_api_list(request):
         ),
     )
 
+    filterset = ArtworkFilter(request.query_params, queryset=artworks)
+    if not filterset.is_valid():
+        return Response({"errors": filterset.errors}, status=400)
+
     serializer = ArtworkSerializer(
-        artworks, many=True, context={"request": request}
+        filterset.qs, many=True, context={"request": request}
     )
     return Response(serializer.data)

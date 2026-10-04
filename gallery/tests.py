@@ -226,3 +226,59 @@ class PublicGalleryTests(TestCase):
 
         self.assertEqual(response.status_code, 405)
         self.assertEqual(Artwork.objects.count(), 2)
+
+    def test_api_filters_by_style_and_technique(self):
+        cases = (
+            ({"style": "Абстракция"}, 1),
+            ({"style": "Неизвестный стиль"}, 0),
+            ({"technique": "Акрил"}, 1),
+            ({"technique": "Неизвестная техника"}, 0),
+            ({"style": "Абстракция", "technique": "Акрил"}, 1),
+        )
+
+        for parameters, expected_count in cases:
+            response = self.client.get(
+                reverse("gallery:artwork_api_list"), parameters,
+                HTTP_ACCEPT="application/json",
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.json()), expected_count, str(parameters))
+
+    def test_api_filters_by_year_and_price(self):
+        self.published.price = "25000.00"
+        self.published.save(update_fields=["price"])
+        cases = (
+            ({"year_min": "2025"}, 1),
+            ({"year_min": "2026"}, 0),
+            ({"year_max": "2025"}, 1),
+            ({"year_max": "2024"}, 0),
+            ({"price_min": "20000"}, 1),
+            ({"price_min": "30000"}, 0),
+            ({"price_max": "30000"}, 1),
+            ({"price_max": "20000"}, 0),
+            ({"year_min": "2025", "price_max": "30000"}, 1),
+            ({"year_min": "2026", "price_max": "30000"}, 0),
+        )
+
+        for parameters, expected_count in cases:
+            response = self.client.get(
+                reverse("gallery:artwork_api_list"), parameters,
+                HTTP_ACCEPT="application/json",
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.json()), expected_count, str(parameters))
+
+    def test_api_rejects_invalid_number_filter(self):
+        cases = (
+            ("year_min", "не число"),
+            ("year_min", "2022.5"),
+            ("price_max", "-1"),
+        )
+
+        for field_name, value in cases:
+            response = self.client.get(
+                reverse("gallery:artwork_api_list"), {field_name: value},
+                HTTP_ACCEPT="application/json",
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn(field_name, response.json()["errors"])
