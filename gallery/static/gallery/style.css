@@ -51,6 +51,8 @@ h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; font-weight: normal
 .filters input, .filters select { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 0; background: var(--white); color: var(--ink); font: inherit; font-weight: normal; }
 .filters button { min-height: 44px; padding: 0 23px; border: 1px solid var(--ink); background: var(--ink); color: var(--white); font: inherit; font-size: 13px; font-weight: bold; cursor: pointer; }
 .filters button:hover { background: var(--accent); border-color: var(--accent); }
+.filter-errors { flex-basis: 100%; color: #a12e22; font-size: 13px; }
+.filter-errors p { margin: 0; }
 .reset-link { padding: 13px 3px; color: var(--muted); font-size: 13px; text-decoration: underline; }
 .artwork-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 42px 24px; }
 .artwork-card { min-width: 0; }

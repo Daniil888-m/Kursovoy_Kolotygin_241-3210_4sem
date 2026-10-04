@@ -5,13 +5,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
+from .filters import ArtworkFilter
 from .forms import CommentForm, ContactRequestForm, ReviewForm
-from .models import Artwork, Category, Review
+from .models import Artwork, Category, Review, Style, Technique
 
 
 # Публичные страницы показывают только опубликованные и одобренные данные.
 def artwork_list(request):
-    """Показывает опубликованные работы с поиском и фильтром по категории."""
+    """Показывает опубликованные работы с поиском и фильтрами."""
     artworks = Artwork.objects.filter(is_published=True).select_related(
         "artist", "category", "style", "technique"
     ).annotate(
@@ -30,11 +31,20 @@ def artwork_list(request):
     if category_name:
         artworks = artworks.filter(category__name=category_name)
 
+    filterset = ArtworkFilter(request.GET, queryset=artworks)
+    if filterset.is_valid():
+        artworks = filterset.qs
+
     context = {
         "artworks": artworks,
         "categories": Category.objects.all(),
+        "styles": Style.objects.all(),
+        "techniques": Technique.objects.select_related("style"),
         "query": query,
         "selected_category": category_name,
+        "selected_style": request.GET.get("style", "").strip(),
+        "selected_technique": request.GET.get("technique", "").strip(),
+        "filter_form": filterset.form,
     }
     return render(request, "gallery/artwork_list.html", context)
 

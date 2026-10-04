@@ -160,6 +160,51 @@ class PublicGalleryTests(TestCase):
         self.assertContains(response, "Работы не найдены")
         self.assertNotContains(response, "Открытая работа")
 
+    def test_html_gallery_combines_filters(self):
+        self.published.price = "25000.00"
+        self.published.save(update_fields=["price"])
+        response = self.client.get(reverse("gallery:artwork_list"), {
+            "q": "Открытая",
+            "category": "Живопись",
+            "style": "Абстракция",
+            "technique": "Акрил",
+            "year_min": "2025",
+            "year_max": "2025",
+            "price_min": "20000",
+            "price_max": "30000",
+        })
+
+        self.assertContains(response, "Открытая работа")
+        self.assertNotContains(response, "Скрытый черновик")
+        self.assertContains(response, "Сбросить")
+        self.assertContains(response, 'value="Абстракция" selected')
+
+    def test_html_gallery_filters_out_nonmatching_artwork(self):
+        self.published.price = "25000.00"
+        self.published.save(update_fields=["price"])
+        for parameters in (
+            {"style": "Реализм"},
+            {"technique": "Масло"},
+            {"year_min": "2026"},
+            {"price_max": "20000"},
+        ):
+            with self.subTest(parameters=parameters):
+                response = self.client.get(
+                    reverse("gallery:artwork_list"), parameters
+                )
+                self.assertContains(response, "Работы не найдены")
+                self.assertNotContains(response, "Открытая работа")
+
+    def test_html_gallery_shows_error_for_invalid_number(self):
+        response = self.client.get(
+            reverse("gallery:artwork_list"), {"year_min": "не число"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("year_min", response.context["filter_form"].errors)
+        self.assertContains(response, "Проверьте значения фильтров")
+        self.assertContains(response, "Открытая работа")
+
     def test_detail_shows_only_approved_feedback(self):
         visitor = get_user_model().objects.create_user(username="test_visitor")
         Review.objects.create(

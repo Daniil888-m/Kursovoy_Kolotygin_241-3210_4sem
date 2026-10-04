@@ -38,8 +38,47 @@
                 {% endfor %}
             </select>
         </label>
+        <label>
+            <span>Стиль</span>
+            <select name="style">
+                <option value="">Все стили</option>
+                {% for style in styles %}
+                    <option value="{{ style.name }}" {% if style.name == selected_style %}selected{% endif %}>{{ style.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Техника</span>
+            <select name="technique">
+                <option value="">Все техники</option>
+                {% for technique in techniques %}
+                    <option value="{{ technique.name }}" {% if technique.name == selected_technique %}selected{% endif %}>{{ technique.name }} ({{ technique.style.name }})</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Год от</span>
+            {{ filter_form.year_min }}
+        </label>
+        <label>
+            <span>Год до</span>
+            {{ filter_form.year_max }}
+        </label>
+        <label>
+            <span>Цена от, ₽</span>
+            {{ filter_form.price_min }}
+        </label>
+        <label>
+            <span>Цена до, ₽</span>
+            {{ filter_form.price_max }}
+        </label>
+        {% if filter_form.errors %}
+            <div class="filter-errors" role="alert">
+                <p>Проверьте значения фильтров. Год должен быть целым положительным числом, цена — числом от 0.</p>
+            </div>
+        {% endif %}
         <button type="submit">Найти работы</button>
-        {% if query or selected_category %}
+        {% if request.GET %}
             <a class="reset-link" href="{% url 'gallery:artwork_list' %}">Сбросить</a>
         {% endif %}
     </form>
@@ -67,7 +106,7 @@
         {% empty %}
             <div class="empty-state">
                 <h3>Работы не найдены</h3>
-                <p>Попробуйте другое название или выберите все категории.</p>
+                <p>Попробуйте изменить поиск или значения фильтров.</p>
                 <a href="{% url 'gallery:artwork_list' %}">Показать все работы</a>
             </div>
         {% endfor %}
