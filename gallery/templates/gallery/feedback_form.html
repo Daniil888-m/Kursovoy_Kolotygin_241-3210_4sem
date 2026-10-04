@@ -1,0 +1,30 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}{{ heading }} — {{ artwork.title }}{% endblock %}
+
+{% block content %}
+<section class="auth-section container">
+    <a class="back-link" href="{% url 'gallery:artwork_detail' artwork.pk %}">← Вернуться к работе</a>
+    <div class="auth-layout">
+        <div class="auth-intro">
+            <p class="eyebrow">{{ artwork.title }}</p>
+            <h1>{{ heading }}</h1>
+            <p>{{ description }}</p>
+        </div>
+
+        <form class="contact-form" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="form-note">Запись появится на сайте после проверки администратором.</p>
+            <button type="submit">{{ submit_label }} ↗</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -20,4 +20,6 @@ urlpatterns = [
     path("contact/success/", views.contact_success, name="contact_success"),
     path("artworks/<int:pk>/", views.artwork_detail, name="artwork_detail"),
     path("artworks/<int:pk>/contact/", views.contact_request, name="artwork_contact"),
+    path("artworks/<int:pk>/review/", views.review_create, name="review_create"),
+    path("artworks/<int:pk>/comment/", views.comment_create, name="comment_create"),
 ]

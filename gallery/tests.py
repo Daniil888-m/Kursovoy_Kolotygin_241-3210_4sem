@@ -46,6 +46,114 @@ class PublicGalleryTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_guest_cannot_open_feedback_forms(self):
+        for route_name in ("gallery:review_create", "gallery:comment_create"):
+            form_url = reverse(route_name, args=[self.published.pk])
+            response = self.client.get(form_url)
+
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(response["Location"].startswith("/login/?next="))
+
+    def test_review_form_contains_only_public_fields(self):
+        self.client.force_login(self.artist)
+        response = self.client.get(
+            reverse("gallery:review_create", args=[self.published.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context["form"].fields), {"rating", "text"})
+        self.assertContains(response, "csrfmiddlewaretoken")
+
+    def test_review_is_saved_for_current_user_and_waits_for_approval(self):
+        self.client.force_login(self.artist)
+        other_user = get_user_model().objects.create_user(username="other_user")
+        response = self.client.post(
+            reverse("gallery:review_create", args=[self.published.pk]),
+            {
+                "rating": "5",
+                "text": "Прекрасная работа",
+                "user": other_user.pk,
+                "artwork": self.draft.pk,
+                "is_approved": "on",
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(
+            response, reverse("gallery:artwork_detail", args=[self.published.pk])
+        )
+        review = Review.objects.get()
+        self.assertEqual(review.user, self.artist)
+        self.assertEqual(review.artwork, self.published)
+        self.assertEqual(review.rating, 5)
+        self.assertFalse(review.is_approved)
+        self.assertContains(response, "Отзыв отправлен на проверку")
+        self.assertNotContains(response, "Прекрасная работа")
+
+    def test_second_review_is_rejected(self):
+        Review.objects.create(
+            artwork=self.published, user=self.artist, rating=4,
+            text="Первый отзыв",
+        )
+        self.client.force_login(self.artist)
+        response = self.client.post(
+            reverse("gallery:review_create", args=[self.published.pk]),
+            {"rating": "5", "text": "Второй отзыв"},
+            follow=True,
+        )
+
+        self.assertRedirects(
+            response, reverse("gallery:artwork_detail", args=[self.published.pk])
+        )
+        self.assertEqual(Review.objects.count(), 1)
+        self.assertContains(response, "Вы уже оставили отзыв")
+
+    def test_invalid_rating_does_not_create_review(self):
+        self.client.force_login(self.artist)
+        response = self.client.post(
+            reverse("gallery:review_create", args=[self.published.pk]),
+            {"rating": "7", "text": "Слишком большая оценка"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("rating", response.context["form"].errors)
+        self.assertFalse(Review.objects.exists())
+
+    def test_comment_is_saved_for_current_user_and_waits_for_approval(self):
+        self.client.force_login(self.artist)
+        response = self.client.post(
+            reverse("gallery:comment_create", args=[self.published.pk]),
+            {"text": "Очень красиво", "is_approved": "on"},
+            follow=True,
+        )
+
+        self.assertRedirects(
+            response, reverse("gallery:artwork_detail", args=[self.published.pk])
+        )
+        comment = Comment.objects.get()
+        self.assertEqual(comment.user, self.artist)
+        self.assertEqual(comment.artwork, self.published)
+        self.assertFalse(comment.is_approved)
+        self.assertContains(response, "Комментарий отправлен на проверку")
+        self.assertNotContains(response, "Очень красиво")
+
+    def test_empty_comment_does_not_create_record(self):
+        self.client.force_login(self.artist)
+        response = self.client.post(
+            reverse("gallery:comment_create", args=[self.published.pk]),
+            {"text": ""},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text", response.context["form"].errors)
+        self.assertFalse(Comment.objects.exists())
+
+    def test_draft_rejects_feedback(self):
+        self.client.force_login(self.artist)
+        for route_name in ("gallery:review_create", "gallery:comment_create"):
+            response = self.client.get(reverse(route_name, args=[self.draft.pk]))
+            self.assertEqual(response.status_code, 404)
+
     def test_search_filters_artworks(self):
         response = self.client.get(reverse("gallery:artwork_list"), {"q": "нет такого"})
 

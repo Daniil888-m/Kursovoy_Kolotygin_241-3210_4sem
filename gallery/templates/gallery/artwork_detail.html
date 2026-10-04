@@ -33,6 +33,15 @@
         <section class="feedback-block" aria-labelledby="reviews-title">
             <p class="eyebrow">МНЕНИЯ ЗРИТЕЛЕЙ</p>
             <h2 id="reviews-title">Отзывы</h2>
+            {% if user.is_authenticated %}
+                {% if user_review %}
+                    <p class="feedback-hint">Вы уже оставили отзыв.{% if not user_review.is_approved %} Он ожидает проверки.{% endif %}</p>
+                {% else %}
+                    <a class="feedback-action" href="{% url 'gallery:review_create' artwork.pk %}">Оставить отзыв ↗</a>
+                {% endif %}
+            {% else %}
+                <p class="feedback-hint">Чтобы оставить отзыв, <a href="{% url 'gallery:login' %}?next={{ request.path|urlencode }}">войдите на сайт</a>.</p>
+            {% endif %}
             {% for review in reviews %}
                 <article class="feedback-card">
                     <div class="feedback-heading"><strong>{{ review.user.username }}</strong><span>Оценка: {{ review.rating }}/5</span></div>
@@ -45,6 +54,11 @@
         <section class="feedback-block" aria-labelledby="comments-title">
             <p class="eyebrow">ОБСУЖДЕНИЕ</p>
             <h2 id="comments-title">Комментарии</h2>
+            {% if user.is_authenticated %}
+                <a class="feedback-action" href="{% url 'gallery:comment_create' artwork.pk %}">Написать комментарий ↗</a>
+            {% else %}
+                <p class="feedback-hint">Чтобы написать комментарий, <a href="{% url 'gallery:login' %}?next={{ request.path|urlencode }}">войдите на сайт</a>.</p>
+            {% endif %}
             {% for comment in comments %}
                 <article class="feedback-card">
                     <div class="feedback-heading"><strong>{{ comment.user.username }}</strong></div>

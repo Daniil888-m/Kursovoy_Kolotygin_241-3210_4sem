@@ -33,6 +33,12 @@
         </div>
     </header>
 
+    {% if messages %}
+        <div class="container site-messages" role="status">
+            {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+        </div>
+    {% endif %}
+
     <main>{% block content %}{% endblock %}</main>
 
     <footer class="site-footer">

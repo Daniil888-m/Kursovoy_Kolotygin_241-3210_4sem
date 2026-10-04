@@ -1,10 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ContactRequestForm
-from .models import Artwork, Category
+from .forms import CommentForm, ContactRequestForm, ReviewForm
+from .models import Artwork, Category, Review
 
 
 # Публичные страницы показывают только опубликованные и одобренные данные.
@@ -48,11 +50,15 @@ def artwork_detail(request, pk):
         ),
     )
     artwork = get_object_or_404(published_artworks, pk=pk)
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = artwork.reviews.filter(user=request.user).first()
 
     context = {
         "artwork": artwork,
         "reviews": artwork.reviews.filter(is_approved=True).select_related("user"),
         "comments": artwork.comments.filter(is_approved=True).select_related("user"),
+        "user_review": user_review,
     }
     return render(request, "gallery/artwork_detail.html", context)
 
@@ -98,3 +104,58 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, "gallery/register.html", {"form": form})
+
+
+@login_required
+def review_create(request, pk):
+    """Сохраняет один отзыв пользователя для опубликованной работы."""
+    artwork = get_object_or_404(Artwork, pk=pk, is_published=True)
+    if Review.objects.filter(artwork=artwork, user=request.user).exists():
+        messages.info(request, "Вы уже оставили отзыв об этой работе.")
+        return redirect("gallery:artwork_detail", pk=artwork.pk)
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.artwork = artwork
+            review.user = request.user
+            review.save()
+            messages.success(request, "Отзыв отправлен на проверку.")
+            return redirect("gallery:artwork_detail", pk=artwork.pk)
+    else:
+        form = ReviewForm()
+
+    return render(request, "gallery/feedback_form.html", {
+        "form": form,
+        "artwork": artwork,
+        "heading": "Оставить отзыв",
+        "description": "Поставьте оценку от 1 до 5 и напишите отзыв.",
+        "submit_label": "Отправить отзыв",
+    })
+
+
+@login_required
+def comment_create(request, pk):
+    """Сохраняет комментарий пользователя к опубликованной работе."""
+    artwork = get_object_or_404(Artwork, pk=pk, is_published=True)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.artwork = artwork
+            comment.user = request.user
+            comment.save()
+            messages.success(request, "Комментарий отправлен на проверку.")
+            return redirect("gallery:artwork_detail", pk=artwork.pk)
+    else:
+        form = CommentForm()
+
+    return render(request, "gallery/feedback_form.html", {
+        "form": form,
+        "artwork": artwork,
+        "heading": "Добавить комментарий",
+        "description": "Поделитесь впечатлением об этой работе.",
+        "submit_label": "Отправить комментарий",
+    })
